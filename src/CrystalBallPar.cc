@@ -1,54 +1,67 @@
 #include "../interface/CrystalBallPar.h"
+
 #include <iostream>
 
 using namespace std;
 
-CrystalBallPar::CrystalBallPar( int parNumber, int decayMode, const std::string &jetParFileName ): parNumber_{parNumber}, decayMode_{decayMode}, jetParFileName_{jetParFileName}{
- 
-  cout << "\nStarting class instantiation for 1 correction only!!" << endl;
-  
+CrystalBallPar::CrystalBallPar(int parNumber, int decayMode, const std::string& jetParFileName)
+  : parNumber_(parNumber), 
+    decayMode_(decayMode), 
+    jetParFileName_(jetParFileName),
+    jetPar_(0),
+    l2JetPar_(0),
+    l3JetPar_(0),
+    jetCorrector_(0)
+{
   // Create the JetCorrectorParameter objects, the order does not matter.
-  cout << "Creating the JetCorrectorParameter objects..." << endl; 
-  jetPar_  = new JetCorrectorParameters(jetParFileName_.data());
+  jetPar_ = new JetCorrectorParameters(jetParFileName_.data());
 
   // Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
-  cout << "Load the JetCorrectorParameter objects into a vector..." << endl;
   vPar_.push_back(*jetPar_);
 
   // Construct a FactorizedJetCorrector object with the vector
-  cout << "Construct a FactorizedJetCorrector object with the vector..." << endl;
   jetCorrector_ = new FactorizedJetCorrector(vPar_);
-
-  cout << "Finished class instantiation for 1 correction level only!!\n" << endl;
 }
 
+CrystalBallPar::CrystalBallPar( int parNumber, int decayMode, const std::string& l2JetParFileName, const std::string& l3JetParFileName)
+  : parNumber_(parNumber), 
+    decayMode_(decayMode), 
+    l2JetParFileName_(l2JetParFileName), 
+    l3JetParFileName_(l3JetParFileName),
+    jetPar_(0),
+    l2JetPar_(0),
+    l3JetPar_(0),
+    jetCorrector_(0)
+{
+  std::cout << "<CrystalBallPar::CrystalBallPar>:" << std::endl;
 
-CrystalBallPar::CrystalBallPar( int parNumber, int decayMode, const std::string &l2JetParFileName, const std::string &l3JetParFileName ): parNumber_{parNumber}, decayMode_{decayMode}, l2JetParFileName_{l2JetParFileName}, l3JetParFileName_{l3JetParFileName} {
- 
-  cout << "\nStarting class instantiation for L2L3!!" << endl;
-  
   // Create the JetCorrectorParameter objects, the order does not matter.
-  cout << "Creating the JetCorrectorParameter objects..." << endl; 
-  l2JetPar_  = new JetCorrectorParameters(l2JetParFileName_.data());
-  l3JetPar_  = new JetCorrectorParameters(l3JetParFileName_.data());
+  std::cout << " initializing L2 corrections..." << std::endl;
+  l2JetPar_ = new JetCorrectorParameters(l2JetParFileName_.data());
+  std::cout << " initializing L3 corrections..." << std::endl;
+  l3JetPar_ = new JetCorrectorParameters(l3JetParFileName_.data());
+  std::cout << "done." << std::endl;
 
   // Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
-  cout << "Load the JetCorrectorParameter objects into a vector..." << endl;
   vPar_.push_back(*l2JetPar_);
   vPar_.push_back(*l3JetPar_);
 
   // Construct a FactorizedJetCorrector object with the vector
-  cout << "Construct a FactorizedJetCorrector object with the vector..." << endl;
+  std::cout << " initializing FactorizedJetCorrector..." << std::endl;
   jetCorrector_ = new FactorizedJetCorrector(vPar_);
-
-  cout << "Finished class instantiation for L2L3!!\n" << endl;
+  std::cout << "done." << std::endl;
 }
 
-CrystalBallPar::~CrystalBallPar(){}
+CrystalBallPar::~CrystalBallPar()
+{
+  delete jetPar_;
+  delete l2JetPar_;
+  delete l3JetPar_;
+  delete jetCorrector_;
+}
 
-//double CrystalBallPar::operator()(double genPt, double genEta=1.) const{
-double CrystalBallPar::operator()(double genPt, double genEta=1.) const{
-
+double CrystalBallPar::operator()(double genPt, double genEta) const 
+{
   // https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorFWLite
 
   // Set the necessary values, for every jet, inside the jet loop

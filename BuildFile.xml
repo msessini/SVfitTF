@@ -1,7 +1,8 @@
+<use   name="CondFormats/JetMETObjects"/>
+<use   name="FWCore/ParameterSet"/>
 <use   name="root"/>
 <use   name="rootcintex"/>
 <use   name="roofit"/>
-<use   name="CondFormats/JetMETObjects"/>
 <export>
   <lib   name="1"/>
 </export>
