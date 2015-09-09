@@ -1,7 +1,7 @@
 <use   name="CondFormats/JetMETObjects"/>
+<use   name="DataFormats/TauReco"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="root"/>
-<use   name="rootcintex"/>
 <use   name="roofit"/>
 <export>
   <lib   name="1"/>

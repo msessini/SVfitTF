@@ -13,6 +13,8 @@ CrystalBallPar::CrystalBallPar(int parNumber, int decayMode, const std::string& 
     l3JetPar_(0),
     jetCorrector_(0)
 {
+  //std::cout << "<CrystalBallPar::CrystalBallPar>:" << std::endl;
+
   // Create the JetCorrectorParameter objects, the order does not matter.
   jetPar_ = new JetCorrectorParameters(jetParFileName_.data());
 
@@ -33,27 +35,29 @@ CrystalBallPar::CrystalBallPar( int parNumber, int decayMode, const std::string&
     l3JetPar_(0),
     jetCorrector_(0)
 {
-  std::cout << "<CrystalBallPar::CrystalBallPar>:" << std::endl;
+  //std::cout << "<CrystalBallPar::CrystalBallPar>:" << std::endl;
 
   // Create the JetCorrectorParameter objects, the order does not matter.
-  std::cout << " initializing L2 corrections..." << std::endl;
+  //std::cout << " initializing L2 corrections..." << std::endl;
   l2JetPar_ = new JetCorrectorParameters(l2JetParFileName_.data());
-  std::cout << " initializing L3 corrections..." << std::endl;
+  //std::cout << " initializing L3 corrections..." << std::endl;
   l3JetPar_ = new JetCorrectorParameters(l3JetParFileName_.data());
-  std::cout << "done." << std::endl;
+  //std::cout << "done." << std::endl;
 
   // Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
   vPar_.push_back(*l2JetPar_);
   vPar_.push_back(*l3JetPar_);
 
   // Construct a FactorizedJetCorrector object with the vector
-  std::cout << " initializing FactorizedJetCorrector..." << std::endl;
+  //std::cout << " initializing FactorizedJetCorrector..." << std::endl;
   jetCorrector_ = new FactorizedJetCorrector(vPar_);
-  std::cout << "done." << std::endl;
+  //std::cout << "done." << std::endl;
 }
 
 CrystalBallPar::~CrystalBallPar()
 {
+  //std::cout << "<CrystalBallPar::~CrystalBallPar>:" << std::endl;
+
   delete jetPar_;
   delete l2JetPar_;
   delete l3JetPar_;

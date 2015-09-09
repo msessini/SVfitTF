@@ -23,12 +23,15 @@ class CrystalBall
   const CrystalBallPar* getPar(int par); 
 
  private:
-  int cbParSize_; // nb of CrystalBall parameter
-  int decayMode_; // tau decay mode recontruction
-  int nDecayMode_; 
+  int cbParSize_;  // nb of CrystalBall parameter
+  int nDecayMode_; // nb of different supported tau decay modes
+  enum { kAll, kOneProng0Pi0, kOneProng1Pi0, kOneProng2Pi0, kThreeProng0Pi0 };
+  int decayMode_;  // reconstructed decay mode of given tau (to be set for each event by calling "setDecayMode" function)
   mutable double* xx_;
   mutable double* pp_; // point to the 7 parameter function value 
   std::vector<CrystalBallPar*> thePar_;
   std::map<int, std::vector<CrystalBallPar*> > mapPar_; // <decayMode, parametersVec>
+  mutable double genPt_cache_;
+  mutable double genEta_cache_;
 };
 #endif
