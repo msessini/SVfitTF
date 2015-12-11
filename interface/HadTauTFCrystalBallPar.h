@@ -11,6 +11,7 @@ class HadTauTFCrystalBallPar
   public:
     HadTauTFCrystalBallPar(int parNumber, int decayMode, const std::string& jetParFileName); // apply 1 correction level at a time
     HadTauTFCrystalBallPar(int parNumber, int decayMode, const std::string& l2JetParFileName, const std::string& l3JetParFileName); // 2 correction levels
+    HadTauTFCrystalBallPar(const HadTauTFCrystalBallPar& cbPar);
     virtual ~HadTauTFCrystalBallPar();
     double operator()(double genPt, double genEta) const;
 

@@ -115,7 +115,7 @@ namespace
     // gaussian core
     //double N   = pp[0]; // norm
     double mu  = pp[1]; // mean
-    double sig = pp[2]; // variance
+    double sig = TMath::Max(1.e-2, pp[2]); // variance
     // transition parameters
     double a1  = pp[3];
     double p1  = pp[4];
@@ -150,13 +150,15 @@ namespace
 double HadTauTFCrystalBall::operator()(double recPt, double genPt, double genEta) const
 { 
   //std::cout << "<HadTauTFCrystalBall::operator()>:" << std::endl;
+  //std::cout << " pT: rec = " << recPt << ", gen = " << genPt << std::endl;
+  //std::cout << " eta = " << genEta << std::endl;
 
   xx_[0] = recPt/genPt; 
   //std::cout << " xx = " << xx_[0] << std::endl;
 
   if ( genPt != genPt_cache_ || genEta != genEta_cache_ ) {
     for ( int iPar = 1; iPar < cbParSize_; ++iPar ) {
-      //pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
+      pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
       pp_[iPar] = 1./(*thePar_[iPar])(genPt, genEta); // CV: temporary fix 
       //std::cout << " pp(" << iPar << ") = " << pp_[iPar] << std::endl;
     }
@@ -164,7 +166,9 @@ double HadTauTFCrystalBall::operator()(double recPt, double genPt, double genEta
     genEta_cache_ = genEta;
   }
 
-  return fnc_dscb(xx_, pp_);
+  double retVal = fnc_dscb(xx_, pp_);
+  //std::cout << "--> returning retVal = " << retVal << std::endl;	
+  return retVal;
 }
 
 
@@ -184,11 +188,11 @@ HadTauTFCrystalBall* HadTauTFCrystalBall::Clone(const std::string& label) const
 	entryPar != mapPar_.end(); ++entryPar ) {
     const vHadTauTFCrystalBallParPtr& cbPars = entryPar->second;
     vHadTauTFCrystalBallParPtr cbPars_cloned;
-    for ( vHadTauTFCrystalBallParPtr::const_iterator cbPar = cbPars.begin();
-	  cbPar != cbPars.end(); ++cbPar ) {
-      cbPars_cloned.push_back(new HadTauTFCrystalBallPar(**cbPar));
+    for ( int iPar = 1; iPar < cbParSize_; ++iPar ) {  
+      const HadTauTFCrystalBallPar* cbPar = cbPars[iPar];
+      cbPars_cloned.push_back(new HadTauTFCrystalBallPar(*cbPar));
     }
-    clone->mapPar_[decayMode_] = cbPars_cloned; 
+    clone->mapPar_[decayMode_] = cbPars_cloned;
   }
   clone->setDecayMode(decayMode_);
   clone->genPt_cache_ = genPt_cache_;
