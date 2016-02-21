@@ -48,8 +48,7 @@ HadTauTFfromTGraph::HadTauTFfromTGraph(const std::map<int, const TGraph*>& resol
 	resolutionEntry != resolutionMap.end(); ++resolutionEntry ) {
     int decayMode = resolutionEntry->first;
     const TGraph* resolution = resolutionEntry->second;    
-    const TGraph* resolution_cloned = (TGraph*)resolution->Clone(Form("%s_cloned", resolution->GetName()));
-    resolutionMap_[decayMode] = new ResolutionMapEntry(resolution_cloned);
+    resolutionMap_[decayMode] = new ResolutionMapEntry(resolution);
   }
 }
 

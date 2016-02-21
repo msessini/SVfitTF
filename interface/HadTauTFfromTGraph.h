@@ -35,10 +35,11 @@ class HadTauTFfromTGraph : public HadTauTFBase
   struct ResolutionMapEntry
   {
     ResolutionMapEntry(const TGraph* resolution)
-      : resolution_(resolution),
+      : resolution_(0),
 	cdf_(0)
     {
-      assert(resolution_);
+      assert(resolution);
+      resolution_ = (TGraph*)resolution->Clone(Form("%s_cloned", resolution->GetName()));
       int numPoints = resolution_->GetN();
       cdf_ = new TGraph(numPoints);
       double integral = 0.;
