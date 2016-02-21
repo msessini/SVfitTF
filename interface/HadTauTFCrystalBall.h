@@ -20,6 +20,8 @@ class HadTauTFCrystalBall : public HadTauTFBase
   virtual ~HadTauTFCrystalBall(); // default destructor
   double operator()(double recPt, double genPt, double genEta) const; // call the function "fnc_dscb" which return the CrystalBall probalility value
 
+  double integral(double recPt_low, double recPt_up, double genPt, double genEta) const;
+
   void setDecayMode(int decayMode) const;
 
   const HadTauTFCrystalBallPar* getPar(int par); 

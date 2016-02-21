@@ -190,9 +190,9 @@ double HadTauTFCrystalBall::operator()(double recPt, double genPt, double genEta
   if ( genPt != genPt_cache_ || genEta != genEta_cache_ ) {
     for ( int iPar = 1; iPar < cbParSize_; ++iPar ) {
       pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
-      pp_[iPar] = 1./(*thePar_[iPar])(genPt, genEta); // CV: temporary fix 
+      pp_[iPar] = 1./(*thePar_[iPar])(genPt, genEta); // CV: temporary fix       
       //std::cout << " pp(" << iPar << ") = " << pp_[iPar] << std::endl;
-    }
+    }   
     genPt_cache_ = genPt;
     genEta_cache_ = genEta;
   }
@@ -202,6 +202,88 @@ double HadTauTFCrystalBall::operator()(double recPt, double genPt, double genEta
   return retVal;
 }
 
+double HadTauTFCrystalBall::integral(double recPt_low, double recPt_up, double genPt, double genEta) const
+{
+  //std::cout << "<HadTauTFCrystalBall::integral()>:" << std::endl;
+  //std::cout << " pT: rec = " << recPt_low << ".." << recPt_up << ", gen = " << genPt << std::endl;
+  //std::cout << " eta = " << genEta << std::endl;
+  
+  if ( !(recPt_low < recPt_up) ) return 0.;
+
+  double x_low = recPt_low/genPt; 
+  double x_up = recPt_up/genPt; 
+  //std::cout << " x = " << x_low << ".." << x_up << std::endl;
+  
+  if ( genPt != genPt_cache_ || genEta != genEta_cache_ ) {
+    for ( int iPar = 1; iPar < cbParSize_; ++iPar ) {
+      pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
+      pp_[iPar] = 1./(*thePar_[iPar])(genPt, genEta); // CV: temporary fix       
+      //std::cout << " pp(" << iPar << ") = " << pp_[iPar] << std::endl;
+    }   
+    genPt_cache_ = genPt;
+    genEta_cache_ = genEta;
+  }
+  
+  //-----------------------------------------------------------------------------
+  // Warning: this code needs to be identical to code in fnc_dscb function !!
+  double mu = pp_[1]; // mean
+  if ( mu < 0.5 ) mu = 0.5;
+  if ( mu > 1.5 ) mu = 1.5;
+  double sig = TMath::Max(1.e-2, pp_[2]); // variance
+  // transition parameters
+  double a1 = TMath::Max(0., pp_[3]);
+  double p1 = TMath::Max(0., pp_[4]);
+  if ( p1 > 1.e+1 ) p1 = 1.e+1;
+  double a2 = TMath::Max(0., pp_[5]);
+  double p2 = TMath::Max(0., pp_[6]);
+  if ( p2 > 1.e+1 ) p2 = 1.e+1;
+  //-----------------------------------------------------------------------------
+
+  double u_low = (x_low - mu)/sig;
+  double u_up = (x_up - mu)/sig;
+
+  double integral = 0.;
+
+  double u1 = u_low;
+  if ( u1 < -mu/sig ) u1 = -mu/sig;
+  double u2 = u_up;
+  if ( u2 > -a1 ) u2 = -a1;
+  if ( u1 < u2 && a1 > 0. && p1 > 0. && p1 < 1.e+1 ) {
+    double A1 = pow(p1/fabs(a1), p1)*exp(-0.5*a1*a1);
+    double B1 = p1/fabs(a1) - fabs(a1);
+    double B1_minus_u1 = B1 - u1;
+    double B1_minus_u2 = B1 - u2;
+    double one_minus_p1 = 1. - p1;
+    double term1 = A1*(TMath::Power(B1_minus_u2, one_minus_p1) - TMath::Power(B1_minus_u1, one_minus_p1))/(-one_minus_p1);
+    if ( !std::isfinite(term1) ) term1 = 0.;
+    integral += term1;
+  }
+  double u3 = u_low;
+  if ( u3 < -a1 ) u3 = -a1;
+  double u4 = u_up;
+  if ( u4 > a2 ) u4 = a2;
+  if ( u3 < u4 ) {
+    const double one_over_sqrtTwo = 1./TMath::Sqrt(2.);
+    const double sqrtPi_over_two = TMath::Sqrt(0.5*TMath::Pi());
+    double term2 = sqrtPi_over_two*(TMath::Erf(u4*one_over_sqrtTwo) - TMath::Erf(u3*one_over_sqrtTwo));
+    integral += term2;
+  }
+  double u5 = u_low;
+  if ( u5 < a2 ) u5 = a2;
+  double u6 = u_up;
+  if ( u6 > (2. - mu)/sig ) u6 = (2. - mu)/sig;
+  if ( u5 < u6 && a2 > 0. && p2 > 0. && p2 < 1.e+1 ) {
+    double A2 = pow(p2/fabs(a2), p2)*exp(-0.5*a2*a2);
+    double B2 = p2/fabs(a2) - fabs(a2);
+    double B2_plus_u5 = B2 + u5;
+    double B2_plus_u6 = B2 + u6;
+    double one_minus_p2 = 1. - p2;
+    double term3 = A2*TMath::Power(B2_plus_u5*B2_plus_u6, -p2)*(B2_plus_u5*TMath::Power(B2_plus_u6, p2) - TMath::Power(B2_plus_u5, p2)*B2_plus_u6)/(-one_minus_p2);
+    if ( !std::isfinite(term3) ) term3 = 0.;
+    integral += term3;
+  } 
+  return integral;
+}
 
 HadTauTFCrystalBall* HadTauTFCrystalBall::Clone(const std::string& label) const
 {

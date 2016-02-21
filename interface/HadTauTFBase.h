@@ -18,6 +18,8 @@ class HadTauTFBase
   virtual ~HadTauTFBase() {}
   virtual double operator()(double recPt, double genPt, double genEta) const = 0;
 
+  virtual double integral(double recPt_min, double recPt_max, double genPt, double genEta) const = 0;
+
   virtual void setDecayMode(int decayMode) const {}
 
   virtual HadTauTFBase* Clone(const std::string& label) const = 0;

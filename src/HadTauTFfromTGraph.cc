@@ -33,23 +33,36 @@ HadTauTFfromTGraph::HadTauTFfromTGraph()
 HadTauTFfromTGraph::HadTauTFfromTGraph(const TGraph* resolution)
   : hasResolutionMap_(false),
     theDecayMode_(-1),
-    theResolution_(resolution)
+    theResolution_(new ResolutionMapEntry(resolution))
 { 
   resolutionMap_[-1] = theResolution_;
-  initializeRange(theResolution_, xMin_, xMax_);
+  initializeRange(theResolution_->resolution_, xMin_, xMax_);
 }
 
 HadTauTFfromTGraph::HadTauTFfromTGraph(const std::map<int, const TGraph*>& resolutionMap)
-  : resolutionMap_(resolutionMap),
-    hasResolutionMap_(true),
+  : hasResolutionMap_(true),
     theDecayMode_(-1),
     theResolution_(0)
-{}
+{  
+  for ( std::map<int, const TGraph*>::const_iterator resolutionEntry = resolutionMap.begin(); 
+	resolutionEntry != resolutionMap.end(); ++resolutionEntry ) {
+    int decayMode = resolutionEntry->first;
+    const TGraph* resolution = resolutionEntry->second;    
+    const TGraph* resolution_cloned = (TGraph*)resolution->Clone(Form("%s_cloned", resolution->GetName()));
+    resolutionMap_[decayMode] = new ResolutionMapEntry(resolution_cloned);
+  }
+}
 
 HadTauTFfromTGraph::~HadTauTFfromTGraph()
 {
-  // CV: assume that TGraph objects are owned by calling code
-  //     and do not delete them
+  if ( hasResolutionMap_ ) {
+    for ( std::map<int, const ResolutionMapEntry*>::iterator it = resolutionMap_.begin();
+	  it != resolutionMap_.end(); ++it ) {
+      delete it->second;
+    }
+  } else {
+    delete theResolution_;
+  }
 }
 
 void HadTauTFfromTGraph::setDecayMode(int decayMode) const
@@ -60,7 +73,7 @@ void HadTauTFfromTGraph::setDecayMode(int decayMode) const
       assert(0);
     }
     theResolution_ = resolutionMap_.find(decayMode)->second;
-    initializeRange(theResolution_, xMin_, xMax_);
+    initializeRange(theResolution_->resolution_, xMin_, xMax_);
   }
 }
 
@@ -75,7 +88,28 @@ double HadTauTFfromTGraph::operator()(double recPt, double genPt, double genEta)
     if ( x < 0. ) return 0.;
     if ( x < xMin_ ) x = xMin_;
     if ( x > xMax_ ) x = xMax_;
-    return theResolution_->Eval(x);
+    return theResolution_->resolution_->Eval(x);
+  } else {
+    return 0.;
+  }
+}
+
+double HadTauTFfromTGraph::integral(double recPt_low, double recPt_up, double genPt, double genEta) const
+{
+  if ( !(recPt_low < recPt_up) ) return 0.;
+
+  if ( !theResolution_ ) {
+    std::cerr << "No tau pT transfer functions defined, call 'setDecayMode' function first !!" << std::endl;
+    assert(0);
+  }
+  if ( genPt > 0. ) {
+    double x_low = recPt_low/genPt;
+    if ( x_low < xMin_ ) x_low = xMin_;
+    if ( x_low > xMax_ ) x_low = xMax_;
+    double x_up = recPt_up/genPt;
+    if ( x_up < xMin_ ) x_up = xMin_;
+    if ( x_up > xMax_ ) x_up = xMax_;
+    return (theResolution_->cdf_->Eval(x_up) - theResolution_->cdf_->Eval(x_low));
   } else {
     return 0.;
   }
@@ -84,18 +118,18 @@ double HadTauTFfromTGraph::operator()(double recPt, double genPt, double genEta)
 HadTauTFfromTGraph* HadTauTFfromTGraph::Clone(const std::string& label) const
 {
   HadTauTFfromTGraph* clone = new HadTauTFfromTGraph();
-  for ( std::map<int, const TGraph*>::const_iterator resolutionEntry = resolutionMap_.begin();
+  for ( std::map<int, const ResolutionMapEntry*>::const_iterator resolutionEntry = resolutionMap_.begin();
 	resolutionEntry != resolutionMap_.end(); ++resolutionEntry ) {
     int decayMode = resolutionEntry->first;
-    const TGraph* resolution = resolutionEntry->second;
+    const TGraph* resolution = resolutionEntry->second->resolution_;
     const TGraph* resolution_cloned = (TGraph*)resolution->Clone(Form("%s_%s", resolution->GetName(), label.data()));
-    clone->resolutionMap_[decayMode] = resolution_cloned;
+    clone->resolutionMap_[decayMode] = new ResolutionMapEntry(resolution_cloned);
   }
   clone->hasResolutionMap_ = hasResolutionMap_;
   clone->theDecayMode_ = theDecayMode_;
   if ( clone->resolutionMap_.find(theDecayMode_) != clone->resolutionMap_.end() ) {
     clone->theResolution_ = clone->resolutionMap_.find(theDecayMode_)->second;
-    initializeRange(clone->theResolution_, clone->xMin_, clone->xMax_);
+    initializeRange(clone->theResolution_->resolution_, clone->xMin_, clone->xMax_);
   } else {
     clone->theResolution_ = 0;
   }  
