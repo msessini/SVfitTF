@@ -79,6 +79,8 @@ HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath):
       mapPar_[decayMode][par] = new HadTauTFCrystalBallPar2(decayMode, par, jetParFileName);
     }
   }
+  
+  setDecayMode(decayMode_);
 }
 
 HadTauTFCrystalBall2::~HadTauTFCrystalBall2()
