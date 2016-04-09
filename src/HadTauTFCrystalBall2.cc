@@ -22,8 +22,8 @@ namespace
   }
 }
 
-HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath): 
-    cbParSize_{19},
+HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath)
+  : cbParSize_{19},
     nDecayMode_{7},
     decayMode_{kAll},
     xx_{0},
@@ -31,7 +31,7 @@ HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath):
     genPt_cache_{-1.},
     genEta_cache_{0.}
 { 
-  std::cout << "<HadTauTFCrystalBall2::HadTauTFCrystalBall2>:" << std::endl;
+  //std::cout << "<HadTauTFCrystalBall2::HadTauTFCrystalBall2>:" << std::endl;
 
   xx_ = new double[1];
   pp_ = new double[cbParSize_];
@@ -85,7 +85,7 @@ HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath):
 
 HadTauTFCrystalBall2::~HadTauTFCrystalBall2()
 {
-  std::cout << "<HadTauTFCrystalBall2::~HadTauTFCrystalBall2>:" << std::endl;
+  //std::cout << "<HadTauTFCrystalBall2::~HadTauTFCrystalBall2>:" << std::endl;
 
   delete [] xx_;
   delete [] pp_;
@@ -138,7 +138,7 @@ double HadTauTFCrystalBall2::operator()(double recPt, double genPt, double genEt
   if ( genPt != genPt_cache_ || genEta != genEta_cache_ ) {
     for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {
       pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
-      std::cout << " pp(" << iPar << ") = " << pp_[iPar] << std::endl;
+      //std::cout << " pp(" << iPar << ") = " << pp_[iPar] << std::endl;
     }
     // check that par has a real value
     //for (int iPar=0; iPar<30; iPar++) { 
