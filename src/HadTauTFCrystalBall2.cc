@@ -69,8 +69,7 @@ HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath)
   fileCorr[kThreeProng0Pi0] = "TauJec11V1_L3Absolute_AK5tauHPSlooseCombDBcorrThreeProng0Pi0.txt";
   fileCorr[kThreeProng1Pi0] = "TauJec11V1_L3Absolute_AK5tauHPSlooseCombDBcorrThreeProng1Pi0.txt";
 
-  //for ( int decayMode = 0; decayMode < nDecayMode_; ++decayMode ){
-  for ( int decayMode = 1; decayMode < 2; ++decayMode ){
+  for ( int decayMode = 0; decayMode < nDecayMode_; ++decayMode ){
     mapPar_[decayMode].resize(cbParSize_);
     for ( int par = 0; par < cbParSize_; ++par ){
       std::string jetParFileName = findFile(parDir[par][decayMode] + fileCorr[decayMode]); // each parameter has it own directory
@@ -99,7 +98,8 @@ HadTauTFCrystalBall2::~HadTauTFCrystalBall2()
 
 void HadTauTFCrystalBall2::setDecayMode(int decayMode) const
 { 
-  //std::cout << "setting decay mode for: "<<decayMode<<std::endl;
+  //std::cout << "<HadTauTFCrystalBall2::setDecayMode>:" << std::endl;
+  //std::cout << " decayMode = " << decayMode << std::endl;
 
   decayMode_ = decayMode; 
   int idxDecayMode = -1;  
