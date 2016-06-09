@@ -54,9 +54,9 @@ HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath)
   				  //"ak5tauHPSlooseCombDBcorrThreeProng1Pi0l2",
 				  };
 
-  for( int i=0; i<cbParSize_; i++ ){ 
-    for(auto &decay : vdecay){
-      parDir[i].push_back(inputFilePath + decay + "/" +std::to_string(i) +"/");
+  for ( int i = 0; i < cbParSize_; i++ ){ 
+    for ( auto &decay : vdecay ){
+      parDir[i].push_back(inputFilePath + decay + "/" + std::to_string(i) + "/");
     }
   }
 
@@ -70,12 +70,11 @@ HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath)
   fileCorr[kThreeProng1Pi0] = "TauJec11V1_L3Absolute_AK5tauHPSlooseCombDBcorrThreeProng1Pi0.txt";
 
   for ( int decayMode = 0; decayMode < nDecayMode_; ++decayMode ){
-    mapPar_[decayMode].resize(cbParSize_);
     for ( int par = 0; par < cbParSize_; ++par ){
       std::string jetParFileName = findFile(parDir[par][decayMode] + fileCorr[decayMode]); // each parameter has it own directory
       //std::cout << "reading tauES correction parameters for decayMode = " << decayMode << ", par #" << par << " from files:" << std::endl;
       //std::cout << " L2 = " << jetParFileName << std::endl;
-      mapPar_[decayMode][par] = new HadTauTFCrystalBallPar2(decayMode, par, jetParFileName);
+      mapPar_[decayMode].push_back(new HadTauTFCrystalBallPar2(decayMode, par, jetParFileName));
     }
   }
   
@@ -124,72 +123,68 @@ void HadTauTFCrystalBall2::setDecayMode(int decayMode) const
   //std::cout << "setting decay mode done!! "<<std::endl;
 }
 
-
-
 double HadTauTFCrystalBall2::operator()(double recPt, double genPt, double genEta) const 
 { 
-  //std::cout << "<HadTauTFCrystalBall2::operator()>:" << std::endl;
-  //std::cout << " pT: rec = " << recPt << ", gen = " << genPt << std::endl;
-  //std::cout << " eta = " << genEta << std::endl;
-
   xx_[0] = recPt/genPt; 
-  //std::cout << " xx = " << xx_[0] << std::endl;
 
   if ( genPt != genPt_cache_ || genEta != genEta_cache_ ) {
     for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {
       pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
-      //std::cout << " pp(" << iPar << ") = " << pp_[iPar] << std::endl;
     }
-    // check that par has a real value
-    //for (int iPar=0; iPar<30; iPar++) { 
-    //  if(isinf(pp_[iPar]) || isnan(pp_[iPar])) pp_[iPar]=1; 
-    //  //std::cout << " ppcorr(" << iPar << ") = " << pp_[iPar] << std::endl;
-    //}
-
     genPt_cache_ = genPt;
     genEta_cache_ = genEta;
   }
-
-
-  //std::cout<<"calling crystalBall..."<<std::endl;
+  
   double retVal = crystalBall(xx_, pp_);
   double normVal = normalizedCrystalBall(pp_);
-  //if( (xx_[0]==1.00004) ){
-  //  std::cout<<"x: "<<xx_[0]<<std::endl;
-  //  std::cout << "--> retVal = " << retVal << std::endl;
-  //  std::cout << "--> integral [0, 2] CB Mathematica = " << normVal << std::endl;
-  //  std::cout << "--> retVal/int_CB_mathematica = " << retVal/normVal << std::endl;
-  //}
-  return retVal/normVal;
-}
+  retVal /= normVal;
 
+  if ( isinf(retVal) || isnan(retVal) ) {
+    std::cout << "<HadTauTFCrystalBall2::operator()>:" << std::endl;
+    std::cout << " pT: rec = " << recPt << ", gen = " << genPt << std::endl;
+    std::cout << " eta = " << genEta << std::endl;
+    std::cout << "xx = " << xx_[0] << std::endl;
+    for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {
+      pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
+      std::cout << "pp(" << iPar << ") = " << pp_[iPar] << std::endl;
+    }
+  }
+  
+  return retVal;
+}
 
 double HadTauTFCrystalBall2::integral(double recPt_low, double recPt_up, double genPt, double genEta) const
 {
-  //std::cout << "<HadTauTFCrystalBall2::integral()>:" << std::endl;
-  //std::cout << " pT: rec = " << recPt_low << ".." << recPt_up << ", gen = " << genPt << std::endl;
-  //std::cout << " eta = " << genEta << std::endl;
-
   if ( !(recPt_low < recPt_up) ) return 0.;
 
   double x_low = recPt_low/genPt; 
   double x_up = recPt_up/genPt; 
-  //std::cout << " x = " << x_low << ".." << x_up << std::endl;
 
   if ( genPt != genPt_cache_ || genEta != genEta_cache_ ) {
-    for ( int iPar = 1; iPar < cbParSize_; ++iPar ) {
+    for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {
       pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
-      //std::cout << " pp(" << iPar << ") = " << pp_[iPar] << std::endl;
     }   
     genPt_cache_ = genPt;
     genEta_cache_ = genEta;
   }
 
-  double xx_[1]{(x_up+x_low)/(2*genPt)};
-  double integral{crystalBall(xx_, pp_)};
+  double xx[1];
+  xx[0] = (x_up + x_low)/(2.*genPt);
+  double integral = crystalBall(xx, pp_);
+  
+  if ( isinf(integral) || isnan(integral) ) {
+    std::cout << "<HadTauTFCrystalBall2::integral()>:" << std::endl;
+    std::cout << " pT: rec = " << recPt_low << ".." << recPt_up << ", gen = " << genPt << std::endl;
+    std::cout << " eta = " << genEta << std::endl;
+    std::cout << "x = " << x_low << ".." << x_up << std::endl;
+    for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {
+      pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
+      std::cout << "pp(" << iPar << ") = " << pp_[iPar] << std::endl;
+    }  
+  }
+
   return integral;
 }
-
 
 HadTauTFCrystalBall2* HadTauTFCrystalBall2::Clone(const std::string& label) const
 {
@@ -207,7 +202,7 @@ HadTauTFCrystalBall2* HadTauTFCrystalBall2::Clone(const std::string& label) cons
 	entryPar != mapPar_.end(); ++entryPar ) {
     const vHadTauTFCrystalBallParPtr& cbPars = entryPar->second;
     vHadTauTFCrystalBallParPtr cbPars_cloned;
-    for ( int iPar = 1; iPar < cbParSize_; ++iPar ) {  
+    for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {  
       const HadTauTFCrystalBallPar2* cbPar = cbPars[iPar];
       cbPars_cloned.push_back(new HadTauTFCrystalBallPar2(*cbPar));
     }

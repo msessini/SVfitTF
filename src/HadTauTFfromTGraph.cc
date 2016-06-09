@@ -121,8 +121,7 @@ HadTauTFfromTGraph* HadTauTFfromTGraph::Clone(const std::string& label) const
 	resolutionEntry != resolutionMap_.end(); ++resolutionEntry ) {
     int decayMode = resolutionEntry->first;
     const TGraph* resolution = resolutionEntry->second->resolution_;
-    const TGraph* resolution_cloned = (TGraph*)resolution->Clone(Form("%s_%s", resolution->GetName(), label.data()));
-    clone->resolutionMap_[decayMode] = new ResolutionMapEntry(resolution_cloned);
+    clone->resolutionMap_[decayMode] = new ResolutionMapEntry(resolution);
   }
   clone->hasResolutionMap_ = hasResolutionMap_;
   clone->theDecayMode_ = theDecayMode_;
