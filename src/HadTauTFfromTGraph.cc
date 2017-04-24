@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <string>
-#include <assert.h> 
+#include <assert.h>
 #include <math.h>
 
 namespace
@@ -34,7 +34,7 @@ HadTauTFfromTGraph::HadTauTFfromTGraph(const TGraph* resolution)
   : hasResolutionMap_(false),
     theDecayMode_(-1),
     theResolution_(new ResolutionMapEntry(resolution))
-{ 
+{
   resolutionMap_[-1] = theResolution_;
   initializeRange(theResolution_->resolution_, xMin_, xMax_);
 }
@@ -43,11 +43,11 @@ HadTauTFfromTGraph::HadTauTFfromTGraph(const std::map<int, const TGraph*>& resol
   : hasResolutionMap_(true),
     theDecayMode_(-1),
     theResolution_(0)
-{  
-  for ( std::map<int, const TGraph*>::const_iterator resolutionEntry = resolutionMap.begin(); 
-	resolutionEntry != resolutionMap.end(); ++resolutionEntry ) {
+{
+  for ( std::map<int, const TGraph*>::const_iterator resolutionEntry = resolutionMap.begin();
+  resolutionEntry != resolutionMap.end(); ++resolutionEntry ) {
     int decayMode = resolutionEntry->first;
-    const TGraph* resolution = resolutionEntry->second;    
+    const TGraph* resolution = resolutionEntry->second;
     resolutionMap_[decayMode] = new ResolutionMapEntry(resolution);
   }
 }
@@ -56,7 +56,7 @@ HadTauTFfromTGraph::~HadTauTFfromTGraph()
 {
   if ( hasResolutionMap_ ) {
     for ( std::map<int, const ResolutionMapEntry*>::iterator it = resolutionMap_.begin();
-	  it != resolutionMap_.end(); ++it ) {
+          it != resolutionMap_.end(); ++it ) {
       delete it->second;
     }
   } else {
@@ -118,7 +118,7 @@ HadTauTFfromTGraph* HadTauTFfromTGraph::Clone(const std::string& label) const
 {
   HadTauTFfromTGraph* clone = new HadTauTFfromTGraph();
   for ( std::map<int, const ResolutionMapEntry*>::const_iterator resolutionEntry = resolutionMap_.begin();
-	resolutionEntry != resolutionMap_.end(); ++resolutionEntry ) {
+        resolutionEntry != resolutionMap_.end(); ++resolutionEntry ) {
     int decayMode = resolutionEntry->first;
     const TGraph* resolution = resolutionEntry->second->resolution_;
     clone->resolutionMap_[decayMode] = new ResolutionMapEntry(resolution);
@@ -130,6 +130,6 @@ HadTauTFfromTGraph* HadTauTFfromTGraph::Clone(const std::string& label) const
     initializeRange(clone->theResolution_->resolution_, clone->xMin_, clone->xMax_);
   } else {
     clone->theResolution_ = 0;
-  }  
+  }
   return clone;
 }

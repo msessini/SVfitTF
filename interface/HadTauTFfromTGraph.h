@@ -36,7 +36,7 @@ class HadTauTFfromTGraph : public HadTauTFBase
   {
     ResolutionMapEntry(const TGraph* resolution)
       : resolution_(0),
-	cdf_(0)
+        cdf_(0)
     {
       assert(resolution);
       resolution_ = (TGraph*)resolution->Clone(Form("%s_cloned", resolution->GetName()));
@@ -44,10 +44,10 @@ class HadTauTFfromTGraph : public HadTauTFBase
       cdf_ = new TGraph(numPoints);
       double integral = 0.;
       for ( int idxPoint = 0; idxPoint < numPoints; ++idxPoint ) {
-	double x, y;
-	resolution_->GetPoint(idxPoint, x, y);
-	integral += y;
-	cdf_->SetPoint(idxPoint, x, integral);
+        double x, y;
+        resolution_->GetPoint(idxPoint, x, y);
+        integral += y;
+        cdf_->SetPoint(idxPoint, x, integral);
       }
     }
     ~ResolutionMapEntry()

@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <string>
-#include <assert.h> 
+#include <assert.h>
 #include <math.h>
 #include "TMath.h"
 
@@ -30,7 +30,7 @@ HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath)
     pp_{0},
     genPt_cache_{-1.},
     genEta_cache_{0.}
-{ 
+{
   //std::cout << "<HadTauTFCrystalBall2::HadTauTFCrystalBall2>:" << std::endl;
 
   xx_ = new double[1];
@@ -39,22 +39,22 @@ HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath)
   std::map<int, std::vector<std::string>> parDir; // par number, directory
 
   std::vector<std::string> vdecay{"ak5tauHPSlooseCombDBcorrAll", // uncalibrated
-  				  "ak5tauHPSlooseCombDBcorrOneProng0Pi0",
-  				  "ak5tauHPSlooseCombDBcorrOneProng1Pi0",
-  				  "ak5tauHPSlooseCombDBcorrTwoProng0Pi0",
-  				  "ak5tauHPSlooseCombDBcorrTwoProng1Pi0",
-  				  "ak5tauHPSlooseCombDBcorrThreeProng0Pi0",
-  				  "ak5tauHPSlooseCombDBcorrThreeProng1Pi0"
-				  //"ak5tauHPSlooseCombDBcorrAlll2", // calibrated
-  				  //"ak5tauHPSlooseCombDBcorrOneProng0Pi0l2",
-  				  //"ak5tauHPSlooseCombDBcorrOneProng1Pi0l2",
-  				  //"ak5tauHPSlooseCombDBcorrTwoProng0Pi0l2",
-  				  //"ak5tauHPSlooseCombDBcorrTwoProng1Pi0l2",
-  				  //"ak5tauHPSlooseCombDBcorrThreeProng0Pi0l2",
-  				  //"ak5tauHPSlooseCombDBcorrThreeProng1Pi0l2",
-				  };
+            "ak5tauHPSlooseCombDBcorrOneProng0Pi0",
+            "ak5tauHPSlooseCombDBcorrOneProng1Pi0",
+            "ak5tauHPSlooseCombDBcorrTwoProng0Pi0",
+            "ak5tauHPSlooseCombDBcorrTwoProng1Pi0",
+            "ak5tauHPSlooseCombDBcorrThreeProng0Pi0",
+            "ak5tauHPSlooseCombDBcorrThreeProng1Pi0"
+          //"ak5tauHPSlooseCombDBcorrAlll2", // calibrated
+            //"ak5tauHPSlooseCombDBcorrOneProng0Pi0l2",
+            //"ak5tauHPSlooseCombDBcorrOneProng1Pi0l2",
+            //"ak5tauHPSlooseCombDBcorrTwoProng0Pi0l2",
+            //"ak5tauHPSlooseCombDBcorrTwoProng1Pi0l2",
+            //"ak5tauHPSlooseCombDBcorrThreeProng0Pi0l2",
+            //"ak5tauHPSlooseCombDBcorrThreeProng1Pi0l2",
+          };
 
-  for ( int i = 0; i < cbParSize_; i++ ){ 
+  for ( int i = 0; i < cbParSize_; i++ ){
     for ( auto &decay : vdecay ){
       parDir[i].push_back(inputFilePath + decay + "/" + std::to_string(i) + "/");
     }
@@ -77,7 +77,7 @@ HadTauTFCrystalBall2::HadTauTFCrystalBall2(const std::string& inputFilePath)
       mapPar_[decayMode].push_back(new HadTauTFCrystalBallPar2(decayMode, par, jetParFileName));
     }
   }
-  
+
   setDecayMode(decayMode_);
 }
 
@@ -93,15 +93,15 @@ HadTauTFCrystalBall2::~HadTauTFCrystalBall2()
       delete mapPar_[decayMode][par];
     }
   }
-} 
+}
 
 void HadTauTFCrystalBall2::setDecayMode(int decayMode) const
-{ 
+{
   //std::cout << "<HadTauTFCrystalBall2::setDecayMode>:" << std::endl;
   //std::cout << " decayMode = " << decayMode << std::endl;
 
-  decayMode_ = decayMode; 
-  int idxDecayMode = -1;  
+  decayMode_ = decayMode;
+  int idxDecayMode = -1;
 
   if      ( decayMode_ == reco::PFTau::kOneProng0PiZero   ) idxDecayMode = kOneProng0Pi0; // 0 <=> 1
   else if ( decayMode_ == reco::PFTau::kOneProng1PiZero   ) idxDecayMode = kOneProng1Pi0; // 1 <=> 2
@@ -110,7 +110,7 @@ void HadTauTFCrystalBall2::setDecayMode(int decayMode) const
   else if ( decayMode_ == reco::PFTau::kThreeProng0PiZero ) idxDecayMode = kThreeProng0Pi0; // 10 <=> 5
   else if ( decayMode_ == reco::PFTau::kThreeProng1PiZero ) idxDecayMode = kThreeProng1Pi0; // 11 <=> 6
   else {
-    //std::cerr << "Warning: No transfer function defined for decay mode = " << decayMode_ << " !!"; 
+    //std::cerr << "Warning: No transfer function defined for decay mode = " << decayMode_ << " !!";
     idxDecayMode = kAll; // 0
   }
   assert(mapPar_.find(idxDecayMode) != mapPar_.end());
@@ -123,9 +123,9 @@ void HadTauTFCrystalBall2::setDecayMode(int decayMode) const
   //std::cout << "setting decay mode done!! "<<std::endl;
 }
 
-double HadTauTFCrystalBall2::operator()(double recPt, double genPt, double genEta) const 
-{ 
-  xx_[0] = recPt/genPt; 
+double HadTauTFCrystalBall2::operator()(double recPt, double genPt, double genEta) const
+{
+  xx_[0] = recPt/genPt;
 
   if ( genPt != genPt_cache_ || genEta != genEta_cache_ ) {
     for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {
@@ -134,7 +134,7 @@ double HadTauTFCrystalBall2::operator()(double recPt, double genPt, double genEt
     genPt_cache_ = genPt;
     genEta_cache_ = genEta;
   }
-  
+
   double retVal = crystalBall(xx_, pp_);
   double normVal = normalizedCrystalBall(pp_);
   retVal /= normVal;
@@ -149,7 +149,7 @@ double HadTauTFCrystalBall2::operator()(double recPt, double genPt, double genEt
       std::cout << "pp(" << iPar << ") = " << pp_[iPar] << std::endl;
     }
   }
-  
+
   return retVal;
 }
 
@@ -157,13 +157,13 @@ double HadTauTFCrystalBall2::integral(double recPt_low, double recPt_up, double 
 {
   if ( !(recPt_low < recPt_up) ) return 0.;
 
-  double x_low = recPt_low/genPt; 
-  double x_up = recPt_up/genPt; 
+  double x_low = recPt_low/genPt;
+  double x_up = recPt_up/genPt;
 
   if ( genPt != genPt_cache_ || genEta != genEta_cache_ ) {
     for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {
       pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
-    }   
+    }
     genPt_cache_ = genPt;
     genEta_cache_ = genEta;
   }
@@ -171,7 +171,7 @@ double HadTauTFCrystalBall2::integral(double recPt_low, double recPt_up, double 
   double xx[1];
   xx[0] = (x_up + x_low)/(2.*genPt);
   double integral = crystalBall(xx, pp_);
-  
+
   if ( isinf(integral) || isnan(integral) ) {
     std::cout << "<HadTauTFCrystalBall2::integral()>:" << std::endl;
     std::cout << " pT: rec = " << recPt_low << ".." << recPt_up << ", gen = " << genPt << std::endl;
@@ -180,7 +180,7 @@ double HadTauTFCrystalBall2::integral(double recPt_low, double recPt_up, double 
     for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {
       pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
       std::cout << "pp(" << iPar << ") = " << pp_[iPar] << std::endl;
-    }  
+    }
   }
 
   return integral;
@@ -199,10 +199,10 @@ HadTauTFCrystalBall2* HadTauTFCrystalBall2::Clone(const std::string& label) cons
     clone->pp_[iPar] = pp_[iPar];
   }
   for ( std::map<int, vHadTauTFCrystalBallParPtr>::const_iterator entryPar = mapPar_.begin();
-	entryPar != mapPar_.end(); ++entryPar ) {
+  entryPar != mapPar_.end(); ++entryPar ) {
     const vHadTauTFCrystalBallParPtr& cbPars = entryPar->second;
     vHadTauTFCrystalBallParPtr cbPars_cloned;
-    for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {  
+    for ( int iPar = 0; iPar < cbParSize_; ++iPar ) {
       const HadTauTFCrystalBallPar2* cbPar = cbPars[iPar];
       cbPars_cloned.push_back(new HadTauTFCrystalBallPar2(*cbPar));
     }

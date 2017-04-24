@@ -9,7 +9,7 @@
 class HadTauTFCrystalBallPar2
 {
   public:
-    HadTauTFCrystalBallPar2(int decayMode, int parNumber, const std::string& jetParFileName); 
+    HadTauTFCrystalBallPar2(int decayMode, int parNumber, const std::string& jetParFileName);
     HadTauTFCrystalBallPar2(const HadTauTFCrystalBallPar2& cbPar);
     virtual ~HadTauTFCrystalBallPar2();
     double operator()(double genPt, double genEta) const; // return CB parameters vs (pt, eta)
