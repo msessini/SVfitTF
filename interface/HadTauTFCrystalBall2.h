@@ -1,8 +1,8 @@
 #ifndef TauAnalysis_SVfitTF_HadTauTFCrystalBall2_h
 #define TauAnalysis_SVfitTF_HadTauTFCrystalBall2_h
 
-// This class returns the CrystalBall probability 
-// value for parameters produced with the JetMET packadge. 
+// This class returns the CrystalBall probability
+// value for parameters produced with the JetMET packadge.
 // Author: Betty Calpas, Christian Veelken
 // Email: betty.calpas@cern.ch, christian.veelken@cern.ch
 
@@ -16,9 +16,9 @@ class HadTauTFCrystalBall2 : public HadTauTFBase
 {
  public:
 
-  HadTauTFCrystalBall2(const std::string& = "TauAnalysis/SVfitTF/data/L2L3Corr/"); 
+  HadTauTFCrystalBall2(const std::string& = "TauAnalysis/SVfitTF/data/L2L3Corr/");
 
-  virtual ~HadTauTFCrystalBall2(); 
+  virtual ~HadTauTFCrystalBall2();
 
   double operator()(double recPt, double genPt, double genEta) const; // return CB probability
 
@@ -28,19 +28,19 @@ class HadTauTFCrystalBall2 : public HadTauTFBase
 
   virtual HadTauTFCrystalBall2* Clone(const std::string& label) const;
 
-  const HadTauTFCrystalBallPar2* getPar(int par); 
+  const HadTauTFCrystalBallPar2* getPar(int par);
 
  private:
 
   bool calibrated_; // calibrated or uncalibrated
 
-  int cbParSize_;  
+  int cbParSize_;
 
   int nDecayMode_;
 
   enum { kAll, kOneProng0Pi0, kOneProng1Pi0, kTwoProng0Pi0, kTwoProng1Pi0, kThreeProng0Pi0, kThreeProng1Pi0 };
 
-  mutable int decayMode_; 
+  mutable int decayMode_;
 
   mutable double *xx_; // response
 

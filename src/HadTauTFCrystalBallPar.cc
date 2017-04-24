@@ -5,8 +5,8 @@
 using namespace std;
 
 HadTauTFCrystalBallPar::HadTauTFCrystalBallPar(int parNumber, int decayMode, const std::string& jetParFileName)
-  : parNumber_(parNumber), 
-    decayMode_(decayMode), 
+  : parNumber_(parNumber),
+    decayMode_(decayMode),
     jetParFileName_(jetParFileName),
     jetPar_(0),
     l2JetPar_(0),
@@ -18,7 +18,7 @@ HadTauTFCrystalBallPar::HadTauTFCrystalBallPar(int parNumber, int decayMode, con
   // Create the JetCorrectorParameter objects, the order does not matter.
   jetPar_ = new JetCorrectorParameters(jetParFileName_.data());
 
-  // Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
+  // Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!!
   vPar_.push_back(*jetPar_);
 
   // Construct a FactorizedJetCorrector object with the vector
@@ -26,9 +26,9 @@ HadTauTFCrystalBallPar::HadTauTFCrystalBallPar(int parNumber, int decayMode, con
 }
 
 HadTauTFCrystalBallPar::HadTauTFCrystalBallPar(int parNumber, int decayMode, const std::string& l2JetParFileName, const std::string& l3JetParFileName)
-  : parNumber_(parNumber), 
-    decayMode_(decayMode), 
-    l2JetParFileName_(l2JetParFileName), 
+  : parNumber_(parNumber),
+    decayMode_(decayMode),
+    l2JetParFileName_(l2JetParFileName),
     l3JetParFileName_(l3JetParFileName),
     jetPar_(0),
     l2JetPar_(0),
@@ -44,7 +44,7 @@ HadTauTFCrystalBallPar::HadTauTFCrystalBallPar(int parNumber, int decayMode, con
   l3JetPar_ = new JetCorrectorParameters(l3JetParFileName_.data());
   //std::cout << "done." << std::endl;
 
-  // Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
+  // Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!!
   vPar_.push_back(*l2JetPar_);
   vPar_.push_back(*l3JetPar_);
 
@@ -65,18 +65,18 @@ HadTauTFCrystalBallPar::HadTauTFCrystalBallPar(const HadTauTFCrystalBallPar& cbP
     jetCorrector_(0)
 {
   //std::cout << "<HadTauTFCrystalBallPar::HadTauTFCrystalBallPar>:" << std::endl;
- 
+
   // Create the JetCorrectorParameter objects, the order does not matter.
   //std::cout << " initializing L2 corrections..." << std::endl;
   l2JetPar_ = new JetCorrectorParameters(l2JetParFileName_.data());
   //std::cout << " initializing L3 corrections..." << std::endl;
   l3JetPar_ = new JetCorrectorParameters(l3JetParFileName_.data());
   //std::cout << "done." << std::endl;
-  
+
   // Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!!
   vPar_.push_back(*l2JetPar_);
   vPar_.push_back(*l3JetPar_);
- 
+
   // Construct a FactorizedJetCorrector object with the vector
   //std::cout << " initializing FactorizedJetCorrector..." << std::endl;
   jetCorrector_ = new FactorizedJetCorrector(vPar_);
@@ -93,7 +93,7 @@ HadTauTFCrystalBallPar::~HadTauTFCrystalBallPar()
   delete jetCorrector_;
 }
 
-double HadTauTFCrystalBallPar::operator()(double genPt, double genEta) const 
+double HadTauTFCrystalBallPar::operator()(double genPt, double genEta) const
 {
   // https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorFWLite
 

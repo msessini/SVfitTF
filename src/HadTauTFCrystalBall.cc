@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <string>
-#include <assert.h> 
+#include <assert.h>
 #include <math.h>
 #include <cmath>
 
@@ -30,7 +30,7 @@ HadTauTFCrystalBall::HadTauTFCrystalBall(const std::string& inputFilePath)
     pp_(0),
     genPt_cache_(-1.),
     genEta_cache_(0.)
-{ 
+{
   //std::cout << "<HadTauTFCrystalBall::HadTauTFCrystalBall>:" << std::endl;
 
   xx_ = new double[1];
@@ -45,7 +45,7 @@ HadTauTFCrystalBall::HadTauTFCrystalBall(const std::string& inputFilePath)
   parDir[5] = inputFilePath + "/par5/";
   parDir[6] = inputFilePath + "/par6/";
   parDir[7] = inputFilePath + "/par7/";
-  
+
   std::map<int, std::string> fileL2;
   fileL2[kAll]            = "TauJec11V1_L2Relative_AK5tauHPSlooseCombDBcorrAll.txt";
   fileL2[kOneProng0Pi0]   = "TauJec11V1_L2Relative_AK5tauHPSlooseCombDBcorrOneProng0Pi0.txt";
@@ -85,19 +85,19 @@ HadTauTFCrystalBall::~HadTauTFCrystalBall()
       delete mapPar_[decayMode][par];
     }
   }
-} 
+}
 
 void HadTauTFCrystalBall::setDecayMode(int decayMode) const
-{ 
-  decayMode_ = decayMode; 
+{
+  decayMode_ = decayMode;
 
-  int idxDecayMode = -1;  
+  int idxDecayMode = -1;
   if      ( decayMode_ == reco::PFTau::kOneProng0PiZero   ) idxDecayMode = kOneProng0Pi0;
   else if ( decayMode_ == reco::PFTau::kOneProng1PiZero   ) idxDecayMode = kOneProng1Pi0;
   else if ( decayMode_ == reco::PFTau::kOneProng2PiZero   ) idxDecayMode = kOneProng2Pi0;
   else if ( decayMode_ == reco::PFTau::kThreeProng0PiZero ) idxDecayMode = kThreeProng0Pi0;
   else {
-    std::cerr << "Warning: No transfer function defined for decay mode = " << decayMode_ << " !!"; 
+    std::cerr << "Warning: No transfer function defined for decay mode = " << decayMode_ << " !!";
     idxDecayMode = kAll;
   }
   assert(mapPar_.find(idxDecayMode) != mapPar_.end());
@@ -110,8 +110,8 @@ void HadTauTFCrystalBall::setDecayMode(int decayMode) const
 
 namespace
 {
-  double fnc_dscb(double* xx, double* pp) 
-  { 
+  double fnc_dscb(double* xx, double* pp)
+  {
     //std::cout << "<fnc_dscb>:" << std::endl;
     double x = xx[0];
     // gaussian core
@@ -154,8 +154,8 @@ namespace
       //std::cout << "A2 = " << A2 << ", a2 + B2 = " << a2_plus_B2 << ", 2. - mu + B2*sig = " << (2. - mu + B2*sig) << ", -1 + p2 = " << (-1. + p2) << std::endl;
       term3 = A2*TMath::Power(a2_plus_B2, -p2)*(a2_plus_B2*sig - TMath::Power(a2_plus_B2*sig, p2)*TMath::Power(TMath::Min(2., 2. - mu + B2*sig), 1. - p2))/((-1. + p2)*sig);
       if ( !std::isfinite(term3) ) term3 = 0.;
-    } 
-    //std::cout << "term1 = " << term1 << ", term2 = " << term2 << ", term3 = " << term3 << ", sig = " << sig << std::endl; 
+    }
+    //std::cout << "term1 = " << term1 << ", term2 = " << term2 << ", term3 = " << term3 << ", sig = " << sig << std::endl;
     double one_over_N = term1 + term2 + term3;
     one_over_N *= sig; // CV: multiply result obtained from Mathematica by Jacobi factor dx/du = sig for variable transformation from x to u
     //std::cout << "1/N = " << one_over_N << std::endl;
@@ -167,7 +167,7 @@ namespace
       result = N*A1*TMath::Power(B1 - u, -p1);
     } else if ( u <  a2 ) {
       double arg = -0.5*u*u;
-      //std::cout << "N = " << N << ", u = " << u << ", arg = " << arg << std::endl;	
+      //std::cout << "N = " << N << ", u = " << u << ", arg = " << arg << std::endl;
       result = N*TMath::Exp(arg);
     } else {
       //std::cout << "N = " << N << ", A2 = " << A2 << ", B2 + u = " <<  (B2 + u) << std::endl;
@@ -179,26 +179,26 @@ namespace
 }
 
 double HadTauTFCrystalBall::operator()(double recPt, double genPt, double genEta) const
-{ 
+{
   //std::cout << "<HadTauTFCrystalBall::operator()>:" << std::endl;
   //std::cout << " pT: rec = " << recPt << ", gen = " << genPt << std::endl;
   //std::cout << " eta = " << genEta << std::endl;
 
-  xx_[0] = recPt/genPt; 
+  xx_[0] = recPt/genPt;
   //std::cout << " xx = " << xx_[0] << std::endl;
 
   if ( genPt != genPt_cache_ || genEta != genEta_cache_ ) {
     for ( int iPar = 1; iPar < cbParSize_; ++iPar ) {
       pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
-      pp_[iPar] = 1./(*thePar_[iPar])(genPt, genEta); // CV: temporary fix       
+      pp_[iPar] = 1./(*thePar_[iPar])(genPt, genEta); // CV: temporary fix
       //std::cout << " pp(" << iPar << ") = " << pp_[iPar] << std::endl;
-    }   
+    }
     genPt_cache_ = genPt;
     genEta_cache_ = genEta;
   }
 
   double retVal = fnc_dscb(xx_, pp_);
-  //std::cout << "--> returning retVal = " << retVal << std::endl;	
+  //std::cout << "--> returning retVal = " << retVal << std::endl;
   return retVal;
 }
 
@@ -207,23 +207,23 @@ double HadTauTFCrystalBall::integral(double recPt_low, double recPt_up, double g
   //std::cout << "<HadTauTFCrystalBall::integral()>:" << std::endl;
   //std::cout << " pT: rec = " << recPt_low << ".." << recPt_up << ", gen = " << genPt << std::endl;
   //std::cout << " eta = " << genEta << std::endl;
-  
+
   if ( !(recPt_low < recPt_up) ) return 0.;
 
-  double x_low = recPt_low/genPt; 
-  double x_up = recPt_up/genPt; 
+  double x_low = recPt_low/genPt;
+  double x_up = recPt_up/genPt;
   //std::cout << " x = " << x_low << ".." << x_up << std::endl;
-  
+
   if ( genPt != genPt_cache_ || genEta != genEta_cache_ ) {
     for ( int iPar = 1; iPar < cbParSize_; ++iPar ) {
       pp_[iPar] = (*thePar_[iPar])(genPt, genEta);
-      pp_[iPar] = 1./(*thePar_[iPar])(genPt, genEta); // CV: temporary fix       
+      pp_[iPar] = 1./(*thePar_[iPar])(genPt, genEta); // CV: temporary fix
       //std::cout << " pp(" << iPar << ") = " << pp_[iPar] << std::endl;
-    }   
+    }
     genPt_cache_ = genPt;
     genEta_cache_ = genEta;
   }
-  
+
   //-----------------------------------------------------------------------------
   // Warning: this code needs to be identical to code in fnc_dscb function !!
   double mu = pp_[1]; // mean
@@ -281,7 +281,7 @@ double HadTauTFCrystalBall::integral(double recPt_low, double recPt_up, double g
     double term3 = A2*TMath::Power(B2_plus_u5*B2_plus_u6, -p2)*(B2_plus_u5*TMath::Power(B2_plus_u6, p2) - TMath::Power(B2_plus_u5, p2)*B2_plus_u6)/(-one_minus_p2);
     if ( !std::isfinite(term3) ) term3 = 0.;
     integral += term3;
-  } 
+  }
   return integral;
 }
 
@@ -298,10 +298,10 @@ HadTauTFCrystalBall* HadTauTFCrystalBall::Clone(const std::string& label) const
     clone->pp_[iPar] = pp_[iPar];
   }
   for ( std::map<int, vHadTauTFCrystalBallParPtr>::const_iterator entryPar = mapPar_.begin();
-	entryPar != mapPar_.end(); ++entryPar ) {
+  entryPar != mapPar_.end(); ++entryPar ) {
     const vHadTauTFCrystalBallParPtr& cbPars = entryPar->second;
     vHadTauTFCrystalBallParPtr cbPars_cloned;
-    for ( int iPar = 1; iPar < cbParSize_; ++iPar ) {  
+    for ( int iPar = 1; iPar < cbParSize_; ++iPar ) {
       const HadTauTFCrystalBallPar* cbPar = cbPars[iPar];
       cbPars_cloned.push_back(new HadTauTFCrystalBallPar(*cbPar));
     }

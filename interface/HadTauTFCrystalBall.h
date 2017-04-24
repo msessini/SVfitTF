@@ -1,8 +1,8 @@
 #ifndef TauAnalysis_SVfitTF_HadTauTFCrystalBall_h
 #define TauAnalysis_SVfitTF_HadTauTFCrystalBall_h
 
-// This class returns the CrystalBall probability 
-// value for parameters produced with the JetMET packadge. 
+// This class returns the CrystalBall probability
+// value for parameters produced with the JetMET packadge.
 // Author: Betty Calpas, Christian Veelken
 // Email: betty.calpas@cern.ch, christian.veelken@cern.ch
 
@@ -24,7 +24,7 @@ class HadTauTFCrystalBall : public HadTauTFBase
 
   void setDecayMode(int decayMode) const;
 
-  const HadTauTFCrystalBallPar* getPar(int par); 
+  const HadTauTFCrystalBallPar* getPar(int par);
 
   virtual HadTauTFCrystalBall* Clone(const std::string& label) const;
 
@@ -34,7 +34,7 @@ class HadTauTFCrystalBall : public HadTauTFBase
   enum { kAll, kOneProng0Pi0, kOneProng1Pi0, kOneProng2Pi0, kThreeProng0Pi0 };
   mutable int decayMode_;  // reconstructed decay mode of given tau (to be set for each event by calling "setDecayMode" function)
   mutable double* xx_;
-  mutable double* pp_; // point to the 7 parameter function value 
+  mutable double* pp_; // point to the 7 parameter function value
   typedef std::vector<HadTauTFCrystalBallPar*> vHadTauTFCrystalBallParPtr;
   mutable vHadTauTFCrystalBallParPtr thePar_;
   std::map<int, vHadTauTFCrystalBallParPtr> mapPar_; // <decayMode, parametersVec>
